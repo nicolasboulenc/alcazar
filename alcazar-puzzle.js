@@ -10,8 +10,9 @@ const DIR = {
 
 const TYP = {
 	none: 0,
-	wall: 1,
-	exit: 2,
+	wall_internal: 1,
+	wall_external: 2,
+	exit: 4,
 }
 
 
@@ -34,31 +35,41 @@ class Alcazar_Puzzle {
 
 		// init grid
 		this.grid = [];
-		for(let y=0; y<this.rows; y++) {
-			for(let x=0; x<this.cols; x++) {
-				const cell = new Cell(x, y)
-				this.grid.push(cell);
-			}
-		}
 	}
 
 	load(config) {
 
 		this.init(config.cols, config.rows);
+
+		// allocate grid
+		if(Array.isArray(config.grid) == true) {
+			for()
+		}
+		else {
+			if()
+			for(let y=0; y<this.rows; y++) {
+				for(let x=0; x<this.cols; x++) {
+					const cell = new Cell(x, y)
+					this.grid.push(cell);
+				}
+			}
+		}
+
+
 		for(let elem of config.elems) {
 			const index = elem.y * this.cols + elem.x;
 			if(elem.type === "wall") {
 				if(elem.facing === "N") {
-					this.grid[index].sides[DIR.N] = TYP.wall;
+					this.grid[index].sides[DIR.N] = TYP.wall_internal;
 				}
 				else if(elem.facing === "W") {
-					this.grid[index].sides[DIR.W] = TYP.wall;
+					this.grid[index].sides[DIR.W] = TYP.wall_internal;
 				}
 				else if(elem.facing === "S") {
-					this.grid[index].sides[DIR.S] = TYP.wall;
+					this.grid[index].sides[DIR.S] = TYP.wall_internal;
 				}
 				else if(elem.facing === "E") {
-					this.grid[index].sides[DIR.E] = TYP.wall;
+					this.grid[index].sides[DIR.E] = TYP.wall_internal;
 				}
 			}
 			else if(elem.type === "exit") {
@@ -124,7 +135,7 @@ class Alcazar_Puzzle {
 		}
 		return flows;
 	}
-	
+
 	get_coverage() {
 		let cell_count = 0;
 		let cell_cover = 0;
