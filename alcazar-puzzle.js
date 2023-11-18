@@ -42,16 +42,60 @@ class Alcazar_Puzzle {
 		this.init(config.cols, config.rows);
 
 		// allocate grid
+		// sparse grid
 		if(Array.isArray(config.grid) == true) {
-			for()
+			for(let i=0; i<config.grid.length; i++) {
+				if(config.grid[i] === 1) {
+					const x = i % config.cols
+					const y = Math.floor(i / config.rows)
+					const cell = new Cell(x, y)
+					this.grid.push(cell);
+				}
+				else {
+					const cell = null
+					this.grid.push(cell);
+				}
+			}
+			// place walls
+			for(let y=0; y<this.rows; y++) {
+				for(let x=0; x<this.cols; x++) {
+					const index = y * this.cols + x
+					const indexm1 = y * this.cols + x - 1
+					if( x === 0 || (x > 0 && this.grid[indexm1] === null && this.grid[index] !== null) ) {
+						this.grid[index].sides[DIR.W] = TYP.wall_external
+					}
+					const cell = new Cell(x, y)
+					this.grid.push(cell);
+				}
+			}
 		}
+		// standard rectangular grid
 		else {
-			if()
 			for(let y=0; y<this.rows; y++) {
 				for(let x=0; x<this.cols; x++) {
 					const cell = new Cell(x, y)
 					this.grid.push(cell);
 				}
+			}
+			// north external walls
+			for(let x=0; x<this.cols; x++) {
+				const index = 0 * this.cols + x
+				this.grid[index].sides[DIR.N] = TYP.wall_external
+			}
+			// south external walls
+			for(let x=0; x<this.cols; x++) {
+				const index = (this.rows - 1) * this.cols + x
+				this.grid[index].sides[DIR.S] = TYP.wall_external
+			}
+			// west external walls
+			for(let y=0; y<this.rows; y++) {
+				const index = y * this.cols + 0
+				this.grid[index].sides[DIR.W] = TYP.wall_external
+			}
+			// east external walls
+			for(let y=0; y<this.rows; y++) {
+				const index = y * this.cols + (this.rows - 1)
+				this.grid[index].sides[DIR.E] = TYP.wall_external
 			}
 		}
 
