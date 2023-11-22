@@ -5,6 +5,7 @@ class Editor_Puzzle {
 		this.rows = 0;
 		this.cols = 0;
 		this.grid = [];
+		this.shape = [];
 		this.elems = [];
 		this.init(this.cols, this.rows);
 	}
@@ -16,8 +17,10 @@ class Editor_Puzzle {
 
 		// init grid
 		this.grid = [];
+		for(let i=0; i<this.cols*this.rows; i++) {
+			this.grid.push(1)
+		}
 	}
-
 }
 
 class Editor_Cell {

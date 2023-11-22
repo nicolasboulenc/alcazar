@@ -10,12 +10,13 @@
 		<h1>Alcazar Editor</h1>
 		<div class="toolbar">
 			<div>
-				Width: <button>-</button><input type="text" id="width_input" value="5" size="2"><button>+</button>
-				Height: <button>-</button><input type="text" id="height_input" value="5" size="2"><button>+</button>
+				Width: <button id="width_dec_button">-</button><input type="text" id="width_input" value="5" size="2"><button id="width_inc_button">+</button>
+				Height: <button id="height_dec_button">-</button><input type="text" id="height_input" value="5" size="2"><button id="height_inc_button">+</button>
 			</div>
 			<div>
-				<button id="">dot</button>
-				<button id="">stamp</button>
+				<button id="dot_mode_button">dot</button>
+				<button id="stamp_mode_button">stamp</button>
+				<span id="mode_label"></span>
 			</div>
 			<div>
 				<button id="reset_button">Reset</button>
@@ -26,7 +27,6 @@
 			<canvas id="display_canvas"></canvas>
 		</div>
 	</div>
-	<script src="themes.js"></script>
 	<script src="editor-puzzle.js"></script>
 	<script src="editor.js"></script>
 </body>
