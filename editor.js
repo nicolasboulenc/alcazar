@@ -1,8 +1,6 @@
 "use strict";
 
-// import * as Flow from './flow.js';
-
-// const puzzle = new Flow_Puzzle();
+const puzzle = new Editor_Puzzle();
 
 const theme = THEMES[0]
 
@@ -22,8 +20,8 @@ let grid_h = 0;
 const body_color = "darkslategray";
 const grid_color = "black";
 const line_color = "darkgray";
-const line_width = 2;
-const line_half_width = Math.ceil(line_width / 2);
+const line_width = 3;
+const line_half_width = Math.floor(line_width / 2);
 
 const dot_cell_ratio = 0.7;
 const dot_end_angle = 2 * Math.PI;

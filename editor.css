@@ -1,18 +1,19 @@
-html, body {
+html {
+    margin: 0;
+    padding: 0;
     background-color: darkslategray;
-    height: 100%;
 }
 
 body {
     margin: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .container {
-    width: 50vh;
-    height: 100vh;
+    width: min(100vw, 80vh);
+    /* height: 100vh; */
+    max-width: 80vh;
 }
 
 .toolbar {
