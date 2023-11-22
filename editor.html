@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Alcazar Editor</h1>
+		<div class="toolbar">
+			<div>
+				Width: <input type="text" id="width_input" value="5" size="2"> 
+				Height: <input type="text" id="height_input" value="5" size="2">
+				<button id="reset_button">Reset</button>
+				<button id="export_button">Export</button>
+			</div>
+		</div>
+		<div>
+			<canvas id="display_canvas"></canvas>
+		</div>
+	</div>
+	<script src="themes.js"></script>
+	<!-- <script src="flow-puzzle.js"></script> -->
+	<script src="editor.js"></script>
+</body>
+</html>

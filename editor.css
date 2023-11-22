@@ -1,0 +1,44 @@
+html, body {
+    background-color: darkslategray;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 50vh;
+    height: 100vh;
+}
+
+.toolbar {
+    font-size: 1.5vh;
+    margin-bottom: 1vh;
+}
+
+.toolbar div {
+    margin-bottom: 0.5vh;
+}
+
+.toolbar * {
+    vertical-align: middle;
+}
+
+.color_button {
+    /* height: 2vh;
+    width: 2vh; */
+    margin-right: 1vh;
+}
+
+#display_canvas {
+    width: 100%;
+    height: 90%;
+}
+
+input {
+    text-align: center;
+}
