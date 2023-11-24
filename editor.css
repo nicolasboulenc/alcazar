@@ -12,7 +12,6 @@ body {
 
 .container {
     width: min(100vw, 80vh);
-    /* height: 100vh; */
     max-width: 80vh;
 }
 
@@ -30,10 +29,12 @@ body {
 }
 
 .color_button {
-    /* height: 2vh;
-    width: 2vh; */
-    margin-right: 1vh;
+    height: 2em;
+    width: 2em;
+    margin-right: 1em;
 }
+
+
 
 #display_canvas {
     width: 100%;

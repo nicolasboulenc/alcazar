@@ -7,20 +7,22 @@
 </head>
 <body>
 	<div class="container">
-		<h1>Alcazar Editor</h1>
+		<h1>Puzzle Editor</h1>
 		<div class="toolbar">
 			<div>
-				Width: <button id="width_dec_button">-</button><input type="text" id="width_input" value="5" size="2"><button id="width_inc_button">+</button>
-				Height: <button id="height_dec_button">-</button><input type="text" id="height_input" value="5" size="2"><button id="height_inc_button">+</button>
+				Width:  <button data-dim="width-dec">-</button><input type="text" id="width_input" value="5" size="2"><button data-dim="width-inc">+</button>
+				Height: <button data-dim="height-dec">-</button><input type="text" id="height_input" value="5" size="2"><button data-dim="height-inc">+</button>
 			</div>
 			<div>
-				<button id="dot_mode_button">dot</button>
-				<button id="stamp_mode_button">stamp</button>
+				<button data-mode="stamp">STAMP</button>
+				<button data-mode="wall">WALL</button>
+				<button data-mode="dot">DOT</button>
 				<span id="mode_label"></span>
+				<span id="color_buttons"></span>
 			</div>
 			<div>
-				<button id="reset_button">Reset</button>
-				<button id="export_button">Export</button>
+				<button id="reset_button">RESET</button>
+				<button id="export_button">EXPORT</button>
 			</div>
 		</div>
 		<div>
