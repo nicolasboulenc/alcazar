@@ -1,25 +1,27 @@
 "use strict";
 
-const puzzle = new Editor_Puzzle();
+const puzzle = new Editor_Puzzle()
 
-let canvas = null;
-let ctx = null;
-let offset_x = 0;
-let offset_y = 0;
-let cell_w = 0;
-let cell_h = 0;
-let grid_w = 0;
-let grid_h = 0;
+let canvas = null
+let ctx = null
+let offset_x = 0
+let offset_y = 0
+let cell_w = 0
+let cell_h = 0
+let grid_w = 0
+let grid_h = 0
 
-let curr_color_index = -1;
+let curr_color_index = -1
 let curr_mode = ""
 
 // const theme
 const theme = {
-	body_color: "darkslategray",
-	grid_color: "black",
-	line_color: "darkgray",
-	line_width: 3,
+	body_background_color: "#888",
+	grid_background_color: "#000",
+	grid_color: "#666",
+	grid_width: 1,
+	outwall_color: "#444",
+	outwall_width: 10,
 	outside_gap: 20,
 	colors: [ "#0c2afe", "#008d00", "#e9e000", "#fa8900", "#fe0000", "#00ffff", "#ff0ac9", "#81007f", "#a52b2a" ]
 }
@@ -28,15 +30,15 @@ const line_half_width = Math.floor(theme.line_width / 2)
 const dot_cell_ratio = 0.7
 const dot_end_angle = 2 * Math.PI
 
-init();
+init()
 
 
 function init() {
 
-	document.getElementById("width_input").onchange = update_size;
-	document.getElementById("height_input").onchange = update_size;
-	document.getElementById("reset_button").onclick = puzzle_reset;
-	document.getElementById("export_button").onclick = puzzle_export;
+	document.getElementById("width_input").onchange = update_size
+	document.getElementById("height_input").onchange = update_size
+	document.getElementById("reset_button").onclick = puzzle_reset
+	document.getElementById("export_button").onclick = puzzle_export
 
 	const dim_elems = document.querySelectorAll("[data-dim]")
 	for(let elem of dim_elems) {
@@ -48,76 +50,74 @@ function init() {
 		elem.addEventListener("click", mode_onclick)
 	}
 
-	const color_buttons = document.getElementById("color_buttons");
-	let color_index = 0;
+	const color_buttons = document.getElementById("color_buttons")
+	let color_index = 0
 	for(let color of theme.colors) {
-		const button = document.createElement("button");
-		button.onclick = color_on_click;
-		button.className = "color_button";
-		button.style.backgroundColor = color;
-		button.dataset.color_index = color_index++;
-		color_buttons.append(button);
+		const button = document.createElement("button")
+		button.onclick = color_on_click
+		button.className = "color_button"
+		button.style.backgroundColor = color
+		button.dataset.color_index = color_index++
+		color_buttons.append(button)
 	}
 
-	canvas = document.getElementById("display_canvas");
-	canvas.width = canvas.clientWidth;
-	canvas.height = canvas.clientWidth;
+	canvas = document.getElementById("display_canvas")
+	canvas.width = canvas.clientWidth
+	canvas.height = canvas.clientWidth
 
 	canvas.addEventListener("mouseup", mouse_up)
 	canvas.addEventListener("mousemove", mouse_move)
 
-	ctx = canvas.getContext("2d");
-	ctx.lineCap = "round";
-	ctx.lineJoin = "round";
+	ctx = canvas.getContext("2d")
 
-	update_size();
+	update_size()
 }
 
 
 function update_size(evt) {
 
-	const cols = parseInt(document.getElementById("width_input").value);
-	const rows = parseInt(document.getElementById("height_input").value);
+	const cols = parseInt(document.getElementById("width_input").value)
+	const rows = parseInt(document.getElementById("height_input").value)
 
-	puzzle.init(cols, rows);
+	puzzle.init(cols, rows)
 
-	cell_w = Math.floor((canvas.width - theme.outside_gap * 2) / puzzle.cols);
-	cell_h = Math.floor((canvas.height - theme.outside_gap * 2) / puzzle.rows);
+	cell_w = Math.floor((canvas.width - theme.outside_gap * 2) / puzzle.cols)
+	cell_h = Math.floor((canvas.height - theme.outside_gap * 2) / puzzle.rows)
 
-	offset_x = 0;
-	offset_y = 0;
+	offset_x = 0
+	offset_y = 0
 
 	if(cell_w > cell_h) {
-		cell_w = cell_h;
+		cell_w = cell_h
 	}
 	else {
-		cell_h = cell_w;
+		cell_h = cell_w
 	}
-	offset_x = Math.floor((canvas.width - cell_w * puzzle.cols) / 2);
-	offset_y = Math.floor((canvas.height - cell_h * puzzle.rows) / 2);
+	offset_x = Math.floor((canvas.width - cell_w * puzzle.cols) / 2)
+	offset_y = Math.floor((canvas.height - cell_h * puzzle.rows) / 2)
 
-	grid_w = cell_w * puzzle.cols;
-	grid_h = cell_h * puzzle.rows;
+	grid_w = cell_w * puzzle.cols
+	grid_h = cell_h * puzzle.rows
 
-	window.requestAnimationFrame(draw);
+	window.requestAnimationFrame(draw)
 }
 
 
 function draw() {
 
-	const transform = ctx.getTransform();
+	const transform = ctx.getTransform()
 
-	ctx.fillStyle = theme.body_color;
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = theme.body_background_color
+	ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-	ctx.translate(offset_x, offset_y);
+	ctx.translate(offset_x, offset_y)
 
 	// draw grid background
-	ctx.fillStyle = theme.grid_color;
-	ctx.fillRect(0, 0, grid_w, grid_h);
+	ctx.fillStyle = theme.grid_background_color
+	ctx.fillRect(0, 0, grid_w, grid_h)
 
-	// fill empty cells
-	ctx.fillStyle = theme.body_color;
+	// draw empty cells
+	ctx.fillStyle = theme.body_background_color
 	for(let i=0; i<puzzle.shape.length; i++) {
 		if(puzzle.shape[i] === 0) {
 			const x = (i % puzzle.cols) * cell_w
@@ -126,66 +126,107 @@ function draw() {
 		}
 	}
 
+	// draw grid lines
+	ctx.strokeStyle = theme.grid_color
+	ctx.lineWidth = theme.grid_width
+	ctx.lineCap = "butt"
+	ctx.lineJoin = "miter"
 
-	// draw grid
-	ctx.fillStyle = theme.grid_color;
-	ctx.strokeStyle = theme.line_color;
-	ctx.lineWidth = theme.line_width;
-	ctx.lineCap = "square";
-	ctx.lineJoin = "miter";
+	ctx.beginPath()
 
-	// ctx.fillRect(0, 0, grid_w, grid_h);
-	ctx.beginPath();
-	ctx.rect( line_half_width, line_half_width, grid_w - theme.line_width, grid_h - theme.line_width );
+	for(let y=0; y<puzzle.rows; y++) {
+		for(let x=0; x<puzzle.cols; x++) {
 
-	// horizontal
-	for(let y=1; y<puzzle.rows; y++) {
-		ctx.moveTo(line_half_width		, y * cell_h);
-		ctx.lineTo(grid_w - theme.line_width	, y * cell_h);
+			if(puzzle.grid[y*puzzle.cols+x] === null) continue
+			
+			// check if cell right
+			if(x < puzzle.cols - 1 && puzzle.grid[y*puzzle.cols+(x+1)] !== null) {
+				ctx.moveTo((x + 1) * cell_w, y * cell_h)
+				ctx.lineTo((x + 1) * cell_w, (y+1) * cell_h)
+			}
+			// check if cell below
+			if(y < puzzle.rows - 1 && puzzle.grid[(y+1)*puzzle.cols+x] !== null) {
+				ctx.moveTo(x * cell_w, (y+1)*cell_h)
+				ctx.lineTo((x+1) * cell_w, (y+1)*cell_h)
+			} 
+		}
 	}
+	ctx.stroke()	
+	ctx.closePath()
 
-	// vertical
-	for(let x=1; x<puzzle.cols; x++) {
-		ctx.moveTo(x * cell_w, line_half_width);
-		ctx.lineTo(x * cell_w, grid_h - theme.line_width);
+	// draw outside walls
+	ctx.strokeStyle = theme.outwall_color
+	ctx.lineWidth = theme.outwall_width
+	ctx.lineCap = "square"
+	ctx.lineJoin = "miter"
+
+	const half_outwall = Math.floor(theme.outwall_width / 2)
+
+	ctx.beginPath()
+
+	for(let y=0; y<puzzle.rows; y++) {
+		for(let x=0; x<puzzle.cols; x++) {
+
+			if(puzzle.grid[y*puzzle.cols+x] === null) continue
+
+			// top walls
+			if(y === 0 || puzzle.grid[(y-1)*puzzle.cols+x] === null) {
+				ctx.moveTo(x * cell_w, y * cell_h - half_outwall)
+				ctx.lineTo((x + 1) * cell_w, y * cell_h - half_outwall)
+			}
+			// bottom walls
+			if(y === puzzle.rows-1 || puzzle.grid[(y+1)*puzzle.cols+x] === null) {
+				ctx.moveTo(x * cell_w, (y+1) * cell_h + half_outwall)
+				ctx.lineTo((x + 1) * cell_w, (y+1) * cell_h + half_outwall)
+			}
+			// left walls
+			if(x === 0 || puzzle.grid[y*puzzle.cols+(x-1)] === null) {
+				ctx.moveTo(x * cell_w - half_outwall, y * cell_h)
+				ctx.lineTo(x * cell_w - half_outwall, (y + 1) * cell_h)
+			}
+			// right walls
+			if(x === puzzle.cols-1 || puzzle.grid[y*puzzle.cols+(x+1)] === null) {
+				ctx.moveTo((x+1) * cell_w + half_outwall, y * cell_h)	
+				ctx.lineTo((x+1) * cell_w + half_outwall, (y + 1) * cell_h)
+			}
+		}
 	}
-	ctx.stroke();
+	ctx.stroke()	
+	ctx.closePath()
 
 	// draw dots and paths
+	const dot_radius = cell_w * dot_cell_ratio / 2
+	ctx.lineWidth = 70
 
+	let cell_index = 0
+	let cell_count = puzzle.grid.length
 
-	const dot_radius = cell_w * dot_cell_ratio / 2;
-	ctx.lineWidth = 70;
-
-	let cell_index = 0;
-	let cell_count = puzzle.grid.length;
-
-	const cell_half_w = Math.floor(cell_w / 2);
-	const cell_half_h = Math.floor(cell_h / 2);
+	const cell_half_w = Math.floor(cell_w / 2)
+	const cell_half_h = Math.floor(cell_h / 2)
 
 	while(cell_index < cell_count) {
 
-		const cell = puzzle.grid[cell_index];
+		const cell = puzzle.grid[cell_index]
 		if(cell !== null && cell.type === "dot") {
-			ctx.beginPath();
-			ctx.ellipse(cell.x * cell_w + cell_half_w, cell.y * cell_h + cell_half_h, dot_radius, dot_radius, 0, 0, dot_end_angle);
-			ctx.fillStyle = theme.colors[cell.color_index];
-			ctx.fill();
+			ctx.beginPath()
+			ctx.ellipse(cell.x * cell_w + cell_half_w, cell.y * cell_h + cell_half_h, dot_radius, dot_radius, 0, 0, dot_end_angle)
+			ctx.fillStyle = theme.colors[cell.color_index]
+			ctx.fill()
 		}
-		cell_index++;
+		cell_index++
 	}
 
-	ctx.setTransform(transform);
+	ctx.setTransform(transform)
 }
 
 
 function puzzle_reset() {
 
-	const cols = parseInt(document.getElementById("width_input").value);
-	const rows = parseInt(document.getElementById("height_input").value);
+	const cols = parseInt(document.getElementById("width_input").value)
+	const rows = parseInt(document.getElementById("height_input").value)
 
-	puzzle.init(cols, rows);
-	window.requestAnimationFrame(draw);
+	puzzle.init(cols, rows)
+	window.requestAnimationFrame(draw)
 }
 
 
@@ -197,20 +238,20 @@ function puzzle_export() {
 		elems: []
 	}
 
-	let cell_index = 0;
-	let cell_count = puzzle.grid.length;
+	let cell_index = 0
+	let cell_count = puzzle.grid.length
 
 	while(cell_index < cell_count) {
 
-		const cell = puzzle.grid[cell_index];
+		const cell = puzzle.grid[cell_index]
 		if(cell.type !== "") {
-			config.elems.push({"x": cell.x, "y": cell.y, "type": cell.type, "color_index": cell.color_index});
+			config.elems.push({"x": cell.x, "y": cell.y, "type": cell.type, "color_index": cell.color_index})
 		}
-		cell_index++;
+		cell_index++
 	}
 
-	console.log(JSON.stringify(config));
-	return config;
+	console.log(JSON.stringify(config))
+	return config
 }
 
 
@@ -299,13 +340,12 @@ function mouse_up(evt) {
 		}
 	}
 
-
-	window.requestAnimationFrame(draw);
+	window.requestAnimationFrame(draw)
 }
 
 
 function color_on_click(evt) {
-	curr_color_index = evt.currentTarget.dataset.color_index;
+	curr_color_index = evt.currentTarget.dataset.color_index
 }
 
 
