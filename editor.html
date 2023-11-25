@@ -10,14 +10,13 @@
 		<h1>Puzzle Editor</h1>
 		<div class="toolbar">
 			<div>
-				Width:  <button data-dim="width-dec">-</button><input type="text" id="width_input" value="5" size="2"><button data-dim="width-inc">+</button>
-				Height: <button data-dim="height-dec">-</button><input type="text" id="height_input" value="5" size="2"><button data-dim="height-inc">+</button>
+				<span>Width:</span>  <button data-dim="width-dec">-</button><input type="text" id="width_input" value="5" size="2"><button data-dim="width-inc">+</button>
+				<span>Height:</span> <button data-dim="height-dec">-</button><input type="text" id="height_input" value="5" size="2"><button data-dim="height-inc">+</button>
 			</div>
 			<div>
-				<button data-mode="stamp">STAMP</button>
-				<button data-mode="wall">WALL</button>
-				<button data-mode="dot">DOT</button>
-				<span id="mode_label"></span>
+				<button data-mode="stamp">STAMP <input type="checkbox" checked/> </button>
+				<button data-mode="wall">WALL <input type="checkbox"/> </button>
+				<button data-mode="dot">DOT <input type="checkbox"/> </button>
 				<span id="color_buttons"></span>
 			</div>
 			<div>

@@ -12,7 +12,7 @@ let grid_w = 0
 let grid_h = 0
 
 let curr_color_index = -1
-let curr_mode = ""
+let curr_mode = "stamp"
 
 // const theme
 const theme = {
@@ -21,7 +21,7 @@ const theme = {
 	grid_color: "#666",
 	grid_width: 1,
 	outwall_color: "#444",
-	outwall_width: 10,
+	outwall_width: 20,
 	outside_gap: 20,
 	colors: [ "#0c2afe", "#008d00", "#e9e000", "#fa8900", "#fe0000", "#00ffff", "#ff0ac9", "#81007f", "#a52b2a" ]
 }
@@ -68,7 +68,7 @@ function init() {
 	canvas.addEventListener("mouseup", mouse_up)
 	canvas.addEventListener("mousemove", mouse_move)
 
-	ctx = canvas.getContext("2d")
+	ctx = canvas.getContext("2d", { alpha: false })
 
 	update_size()
 }
@@ -157,10 +157,11 @@ function draw() {
 	// draw outside walls
 	ctx.strokeStyle = theme.outwall_color
 	ctx.lineWidth = theme.outwall_width
-	ctx.lineCap = "square"
+	ctx.lineCap = "butt"
 	ctx.lineJoin = "miter"
 
 	const half_outwall = Math.floor(theme.outwall_width / 2)
+	const full_outwall = theme.outwall_width
 
 	ctx.beginPath()
 
@@ -169,30 +170,98 @@ function draw() {
 
 			if(puzzle.grid[y*puzzle.cols+x] === null) continue
 
+			if(y === 0) {
+				// top wall
+				ctx.moveTo(x * cell_w - full_outwall, y * cell_h - half_outwall)
+				ctx.lineTo((x + 1) * cell_w + full_outwall, y * cell_h - half_outwall)
+			}
+			else if(y === puzzle.rows-1) {
+				// bottom wall
+				ctx.moveTo(x * cell_w - full_outwall, (y+1) * cell_h + half_outwall)
+				ctx.lineTo((x + 1) * cell_w + full_outwall, (y+1) * cell_h + half_outwall)
+			}
+			if(x === 0) {
+				// left walls
+				ctx.moveTo(x * cell_w - half_outwall, y * cell_h - full_outwall)
+				ctx.lineTo(x * cell_w - half_outwall, (y + 1) * cell_h + full_outwall)
+			}
+			else if(x === puzzle.cols-1) {
+				// right walls
+				ctx.moveTo((x+1) * cell_w + half_outwall, y * cell_h - full_outwall)	
+				ctx.lineTo((x+1) * cell_w + half_outwall, (y + 1) * cell_h + full_outwall)
+			}
+
 			// top walls
-			if(y === 0 || puzzle.grid[(y-1)*puzzle.cols+x] === null) {
-				ctx.moveTo(x * cell_w, y * cell_h - half_outwall)
-				ctx.lineTo((x + 1) * cell_w, y * cell_h - half_outwall)
+			if(puzzle.grid[(y-1)*puzzle.cols+x] === null) {
+
+				let left_pad = 0
+				if(puzzle.grid[(y-1)*puzzle.cols+(x-1)] === null && puzzle.grid[y*puzzle.cols+(x-1)] === null) {
+					left_pad = -full_outwall
+				}
+				let right_pad = 0
+				if(puzzle.grid[(y-1)*puzzle.cols+(x+1)] === null && puzzle.grid[y*puzzle.cols+(x+1)] === null) {
+					right_pad = +full_outwall
+				}				
+				ctx.moveTo(x * cell_w + left_pad, y * cell_h - half_outwall)
+				ctx.lineTo((x + 1) * cell_w + right_pad, y * cell_h - half_outwall)
 			}
 			// bottom walls
-			if(y === puzzle.rows-1 || puzzle.grid[(y+1)*puzzle.cols+x] === null) {
-				ctx.moveTo(x * cell_w, (y+1) * cell_h + half_outwall)
-				ctx.lineTo((x + 1) * cell_w, (y+1) * cell_h + half_outwall)
+			if(puzzle.grid[(y+1)*puzzle.cols+x] === null) {
+				let left_pad = 0
+				if(puzzle.grid[(y+1)*puzzle.cols+(x-1)] === null && puzzle.grid[y*puzzle.cols+(x-1)] === null) {
+					left_pad = -full_outwall
+				}
+				let right_pad = 0
+				if(puzzle.grid[(y+1)*puzzle.cols+(x+1)] === null && puzzle.grid[y*puzzle.cols+(x+1)] === null) {
+					right_pad = +full_outwall
+				}
+
+				ctx.moveTo(x * cell_w + left_pad, (y+1) * cell_h + half_outwall)
+				ctx.lineTo((x + 1) * cell_w + right_pad, (y+1) * cell_h + half_outwall)
 			}
 			// left walls
-			if(x === 0 || puzzle.grid[y*puzzle.cols+(x-1)] === null) {
+			if(puzzle.grid[y*puzzle.cols+(x-1)] === null) {
 				ctx.moveTo(x * cell_w - half_outwall, y * cell_h)
 				ctx.lineTo(x * cell_w - half_outwall, (y + 1) * cell_h)
 			}
 			// right walls
-			if(x === puzzle.cols-1 || puzzle.grid[y*puzzle.cols+(x+1)] === null) {
+			if(puzzle.grid[y*puzzle.cols+(x+1)] === null) {
 				ctx.moveTo((x+1) * cell_w + half_outwall, y * cell_h)	
 				ctx.lineTo((x+1) * cell_w + half_outwall, (y + 1) * cell_h)
 			}
 		}
 	}
-	ctx.stroke()	
+	ctx.stroke()
 	ctx.closePath()
+
+
+	// draw walls
+	ctx.beginPath()
+	for(const elem of puzzle.elems) {
+		if(elem.type === "wall") {
+			if(elem.facing === "N") {
+				ctx.moveTo(elem.x * cell_w, 		 elem.y * cell_h)
+				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h)
+			}
+			else if(elem.facing === "S") {
+				ctx.moveTo(elem.x * cell_w, 		 elem.y * cell_h + cell_h)
+				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h + cell_h)
+			}
+			else if(elem.facing === "E") {
+				ctx.moveTo(elem.x * cell_w + cell_w, elem.y * cell_h)
+				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h + cell_h)
+			}
+			else if(elem.facing === "W") {
+				ctx.moveTo(elem.x * cell_w, elem.y * cell_h)
+				ctx.lineTo(elem.x * cell_w, elem.y * cell_h + cell_h)
+			}
+		}
+	}
+	ctx.stroke()
+	ctx.closePath()
+
+
+
 
 	// draw dots and paths
 	const dot_radius = cell_w * dot_cell_ratio / 2
@@ -275,17 +344,23 @@ function mouse_move(evt) {
 
 function mouse_up(evt) {
 
-	const b = canvas.getBoundingClientRect()
-	const mouse_x = evt.clientX - b.left - offset_x
-	const mouse_y = evt.clientY - b.top - offset_y
+	const bbox = canvas.getBoundingClientRect()
+	const mouse_x = evt.clientX - bbox.left - offset_x
+	const mouse_y = evt.clientY - bbox.top - offset_y
 
-	const x = Math.floor(mouse_x / cell_w)
-	const y = Math.floor(mouse_y / cell_h)
-	const i = y * puzzle.cols + x
+	const cell_x = Math.floor(mouse_x / cell_w)
+	const cell_y = Math.floor(mouse_y / cell_h)
+	if(cell_x < 0 || cell_y < 0 || cell_x >= puzzle.cols || cell_y >= puzzle.rows) {
+		console.error("Clicked outside grid!")
+		return
+	}
 
-	const curr_cell = puzzle.grid[i]
 
 	if(curr_mode === "dot" && curr_cell !== null) {
+
+		const idx = cell_y * puzzle.cols + cell_x
+		const curr_cell = puzzle.grid[idx]
+
 		if(curr_cell.type !== "") {
 			curr_cell.type = ""
 			curr_cell.color_index = -1
@@ -296,46 +371,95 @@ function mouse_up(evt) {
 		}
 	}
 	else if(curr_mode === "stamp") {
-		if(puzzle.shape[i] === 1) {
+		
+		const idx = cell_y * puzzle.cols + cell_x
+		if(puzzle.shape[idx] === 1) {
 			// erase
-			puzzle.shape[i] = 0
-			puzzle.grid[i] = null
+			puzzle.shape[idx] = 0
+			puzzle.grid[idx] = null
 		}
 		else {
 			// add
-			puzzle.shape[i] = 1
-			puzzle.grid[i] = new Editor_Cell(x, y)
+			puzzle.shape[idx] = 1
+			puzzle.grid[idx] = new Editor_Cell(cell_x, cell_y)
 
 		}
 	}
 	else if(curr_mode === "wall") {
 		const dist = 10
-			
+		// We only use N and W walls:
+		// S wall = (y+1) N wall
+		// E wall = (x+1) W wall
+
+		let vert = false
+
 		if(mouse_x % cell_w < dist) {
-			if(x % puzzle.cols !== 0) {
-				const idx = y * puzzle.cols + (x - 1)
-				if(puzzle.shape[i] === 1) {
-					const wall = { "x": x, "y": y, "type": "wall", "facing": "W" }
-					puzzle.elems.push(wall)
-				}
-				else {
-					console.error("No adjacent cell!")
-				}
-			}
-			else {
+			// check edge of the grid
+			if(cell_x % puzzle.cols === 0) {
 				console.error("Cannot place wall on edge!")
+				return
 			}
-		}
-		else if(cell_w - (mouse_x % cell_w) < dist) {
-			const wall = { "x": x, "y": y, "type": "wall", "facing": "E" }
+			// check there is a cell to the left
+			const idx0 = cell_y * puzzle.cols + cell_x - 1
+			const idx1 = cell_y * puzzle.cols + cell_x
+			if(puzzle.shape[idx0] === 0 || puzzle.shape[idx1] === 0) {
+				console.error("No adjacent cell!")
+				return
+			}
+			
+			// if(wall_exists) delete
+			// else create
+
+			const wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "W" }
 			puzzle.elems.push(wall)
 		}
+		else if(cell_w - (mouse_x % cell_w) < dist) {
+			// check edge of the grid
+			if((cell_x + 1) % puzzle.cols === 0) {
+				console.error("Cannot place wall on edge!")
+				return
+			}
+			// check there is a cell to the left
+			const idx0 = cell_y * puzzle.cols + (cell_x + 1) - 1
+			const idx1 = cell_y * puzzle.cols + (cell_x + 1)
+			if(puzzle.shape[idx0] === 0 || puzzle.shape[idx1] === 0) {
+				console.error("No adjacent cell!")
+				return
+			}
+			const wall = { "x": (cell_x + 1), "y": cell_y, "type": "wall", "facing": "W" }
+			puzzle.elems.push(wall)
+		}
+
 		else if(mouse_y % cell_h < dist) {
-			const wall = { "x": x, "y": y, "type": "wall", "facing": "S" }
+			// check edge of the grid
+			if(cell_y === 0) {
+				console.error("Cannot place wall on edge!")
+				return
+			}
+			// check there is a cell to the left
+			const idx0 = cell_y * puzzle.cols - puzzle.cols + cell_x
+			const idx1 = cell_y * puzzle.cols + cell_x
+			if(puzzle.shape[idx0] === 0 || puzzle.shape[idx1] === 0) {
+				console.error("No adjacent cell!")
+				return
+			}
+			const wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "N" }
 			puzzle.elems.push(wall)
 		}
 		else if(cell_h - (mouse_y % cell_h) < dist) {
-			const wall = { "x": x, "y": y, "type": "wall", "facing": "N" }
+			// check edge of the grid
+			if(cell_y + 1 >= puzzle.rows) {
+				console.error("Cannot place wall on edge!")
+				return
+			}
+			// check there is a cell to the left
+			const idx0 = (cell_y + 1) * puzzle.cols - puzzle.cols + cell_x
+			const idx1 = (cell_y + 1) * puzzle.cols + cell_x
+			if(puzzle.shape[idx0] === 0 || puzzle.shape[idx1] === 0) {
+				console.error("No adjacent cell!")
+				return
+			}
+			const wall = { "x": cell_x, "y": cell_y + 1, "type": "wall", "facing": "N" }
 			puzzle.elems.push(wall)
 		}
 	}
@@ -372,6 +496,15 @@ function dim_onclick(evt) {
 }
 
 function mode_onclick(evt) {
+
+	// uncheck previous mode
+	const elems = document.querySelectorAll("button[data-mode] > input")
+	for(const elem of elems) {
+		elem.checked = false
+	}
+	// check new mode
+	const elem = evt.currentTarget.querySelector("input")
+	elem.checked = true
+
 	curr_mode = evt.currentTarget.dataset["mode"]
-	document.getElementById("mode_label").innerHTML = curr_mode
 }
