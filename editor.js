@@ -326,19 +326,19 @@ function puzzle_export() {
 
 function mouse_move(evt) {
 
-	const dist = 10
-	const b = canvas.getBoundingClientRect()
-	const mouse_x = evt.clientX - b.left - offset_x
-	const mouse_y = evt.clientY - b.top - offset_y
+	// const dist = 10
+	// const b = canvas.getBoundingClientRect()
+	// const mouse_x = evt.clientX - b.left - offset_x
+	// const mouse_y = evt.clientY - b.top - offset_y
 
-	if(curr_mode === "wall") {
-		if( mouse_x % cell_w < dist || 
-			cell_w - (mouse_x % cell_w) < dist || 
-			mouse_y % cell_h < dist || 
-			cell_h - (mouse_y % cell_h) < dist ) {
-				console.log("close")
-		}
-	}
+	// if(curr_mode === "wall") {
+	// 	if( mouse_x % cell_w < dist || 
+	// 		cell_w - (mouse_x % cell_w) < dist || 
+	// 		mouse_y % cell_h < dist || 
+	// 		cell_h - (mouse_y % cell_h) < dist ) {
+	// 			console.log("close")
+	// 	}
+	// }
 }
 
 
@@ -355,9 +355,9 @@ function mouse_up(evt) {
 		return
 	}
 
-
-	if(curr_mode === "dot" && curr_cell !== null) {
-
+	
+	if(curr_mode === "dot" && puzzle.grid[idx] !== null) {
+		
 		const idx = cell_y * puzzle.cols + cell_x
 		const curr_cell = puzzle.grid[idx]
 
@@ -387,11 +387,12 @@ function mouse_up(evt) {
 	}
 	else if(curr_mode === "wall") {
 		const dist = 10
+
 		// We only use N and W walls:
 		// S wall = (y+1) N wall
 		// E wall = (x+1) W wall
-
-		let vert = false
+		
+		let wall = null
 
 		if(mouse_x % cell_w < dist) {
 			// check edge of the grid
@@ -406,12 +407,7 @@ function mouse_up(evt) {
 				console.error("No adjacent cell!")
 				return
 			}
-			
-			// if(wall_exists) delete
-			// else create
-
-			const wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "W" }
-			puzzle.elems.push(wall)
+			wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "W" }
 		}
 		else if(cell_w - (mouse_x % cell_w) < dist) {
 			// check edge of the grid
@@ -426,10 +422,8 @@ function mouse_up(evt) {
 				console.error("No adjacent cell!")
 				return
 			}
-			const wall = { "x": (cell_x + 1), "y": cell_y, "type": "wall", "facing": "W" }
-			puzzle.elems.push(wall)
+			wall = { "x": (cell_x + 1), "y": cell_y, "type": "wall", "facing": "W" }
 		}
-
 		else if(mouse_y % cell_h < dist) {
 			// check edge of the grid
 			if(cell_y === 0) {
@@ -443,8 +437,7 @@ function mouse_up(evt) {
 				console.error("No adjacent cell!")
 				return
 			}
-			const wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "N" }
-			puzzle.elems.push(wall)
+			wall = { "x": cell_x, "y": cell_y, "type": "wall", "facing": "N" }
 		}
 		else if(cell_h - (mouse_y % cell_h) < dist) {
 			// check edge of the grid
@@ -459,9 +452,25 @@ function mouse_up(evt) {
 				console.error("No adjacent cell!")
 				return
 			}
-			const wall = { "x": cell_x, "y": cell_y + 1, "type": "wall", "facing": "N" }
+			wall = { "x": cell_x, "y": cell_y + 1, "type": "wall", "facing": "N" }
+		}
+		
+		// check if wall exists otherwise add
+		let wall_found = false
+		let i = 0
+		while(i<puzzle.elems.length && wall_found === false) {
+			const elem = puzzle.elems[i]
+			if(elem.type === "wall" && elem.x === wall.x && elem.y === wall.y && elem.facing === wall.facing) {
+				wall_found = true
+				puzzle.elems.splice(i, 1)
+			}
+			i++
+		}
+
+		if(wall_found === false) {
 			puzzle.elems.push(wall)
 		}
+
 	}
 
 	window.requestAnimationFrame(draw)
