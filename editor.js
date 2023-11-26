@@ -22,6 +22,8 @@ const theme = {
 	grid_width: 1,
 	outwall_color: "#444",
 	outwall_width: 20,
+	innwall_color: "#666",
+	innwall_width: 10,
 	outside_gap: 20,
 	colors: [ "#0c2afe", "#008d00", "#e9e000", "#fa8900", "#fe0000", "#00ffff", "#ff0ac9", "#81007f", "#a52b2a" ]
 }
@@ -154,7 +156,7 @@ function draw() {
 	ctx.stroke()	
 	ctx.closePath()
 
-	// draw outside walls
+	// draw outter walls
 	ctx.strokeStyle = theme.outwall_color
 	ctx.lineWidth = theme.outwall_width
 	ctx.lineCap = "butt"
@@ -235,25 +237,25 @@ function draw() {
 	ctx.closePath()
 
 
-	// draw walls
+	// draw inner walls
+	ctx.strokeStyle = theme.innwall_color
+	ctx.lineWidth = theme.innwall_width
+	ctx.lineCap = "butt"
+	ctx.lineJoin = "miter"
+
+	const half_innwall = Math.floor(theme.innwall_width / 2)
+	const full_innwall = theme.innwall_width
+
 	ctx.beginPath()
 	for(const elem of puzzle.elems) {
 		if(elem.type === "wall") {
 			if(elem.facing === "N") {
-				ctx.moveTo(elem.x * cell_w, 		 elem.y * cell_h)
-				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h)
-			}
-			else if(elem.facing === "S") {
-				ctx.moveTo(elem.x * cell_w, 		 elem.y * cell_h + cell_h)
-				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h + cell_h)
-			}
-			else if(elem.facing === "E") {
-				ctx.moveTo(elem.x * cell_w + cell_w, elem.y * cell_h)
-				ctx.lineTo(elem.x * cell_w + cell_w, elem.y * cell_h + cell_h)
+				ctx.moveTo(elem.x * cell_w - half_innwall, 		 	elem.y * cell_h)
+				ctx.lineTo(elem.x * cell_w + cell_w + half_innwall, elem.y * cell_h)
 			}
 			else if(elem.facing === "W") {
-				ctx.moveTo(elem.x * cell_w, elem.y * cell_h)
-				ctx.lineTo(elem.x * cell_w, elem.y * cell_h + cell_h)
+				ctx.moveTo(elem.x * cell_w, 	elem.y * cell_h - half_innwall,)
+				ctx.lineTo(elem.x * cell_w, 	elem.y * cell_h + cell_h + half_innwall)
 			}
 		}
 	}
@@ -261,6 +263,7 @@ function draw() {
 	ctx.closePath()
 
 
+	// draw exits
 
 
 	// draw dots and paths
@@ -350,13 +353,18 @@ function mouse_up(evt) {
 
 	const cell_x = Math.floor(mouse_x / cell_w)
 	const cell_y = Math.floor(mouse_y / cell_h)
+
+	let inside_grid = true
+
 	if(cell_x < 0 || cell_y < 0 || cell_x >= puzzle.cols || cell_y >= puzzle.rows) {
-		console.error("Clicked outside grid!")
-		return
+		console.log("Clicked outside grid!")
+		inside_grid = false
 	}
 
 	
-	if(curr_mode === "dot" && puzzle.grid[idx] !== null) {
+	if(curr_mode === "dot" && inside_grid === true) {
+		
+		if(puzzle.grid[idx] === null) return
 		
 		const idx = cell_y * puzzle.cols + cell_x
 		const curr_cell = puzzle.grid[idx]
@@ -370,7 +378,7 @@ function mouse_up(evt) {
 			curr_cell.color_index = curr_color_index
 		}
 	}
-	else if(curr_mode === "stamp") {
+	else if(curr_mode === "stamp" && inside_grid === true) {
 		
 		const idx = cell_y * puzzle.cols + cell_x
 		if(puzzle.shape[idx] === 1) {
@@ -382,10 +390,15 @@ function mouse_up(evt) {
 			// add
 			puzzle.shape[idx] = 1
 			puzzle.grid[idx] = new Editor_Cell(cell_x, cell_y)
-
 		}
 	}
-	else if(curr_mode === "wall") {
+	else if(curr_mode === "exit") {
+
+		const dist = 20
+
+	}
+	else if(curr_mode === "wall" && inside_grid === true) {
+
 		const dist = 10
 
 		// We only use N and W walls:
